@@ -1,0 +1,322 @@
+.container {
+    font-family: 'Inter', 'Roboto', sans-serif;
+    background-color: #0a0a0af2;
+    color: #fff;
+    min-height: 100vh;
+}
+
+.heroSection {
+    position: relative;
+    height: 90vh;
+    width: 98vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-image: url("../assets/images/gym_hero_bg.png");
+    background-size: cover;
+    background-position: center;
+}
+
+.heroOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.308);
+    z-index: 1;
+}
+
+.heroContent {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    max-width: 800px;
+    padding: 0 20px;
+}
+
+.title {
+    font-size: 4.5rem;
+    font-weight: 900;
+    color: #ff3333;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow: 2px 2px 10px rgba(255, 51, 51, 0.3);
+}
+
+.subtitle {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #fff;
+    margin: 10px 0 20px 0;
+    letter-spacing: 4px;
+}
+
+.description {
+    font-size: 1.1rem;
+    color: #ccc;
+    line-height: 1.6;
+    margin-bottom: 40px;
+}
+
+.registerBtn {
+    background-color: #ff3333;
+    color: white;
+    border: none;
+    padding: 15px 45px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    box-shadow: 0 6px 20px rgba(255, 51, 51, 0.4);
+}
+
+.registerBtn:hover {
+    transform: scale(1.05);
+}
+
+.featuresSection {
+    padding: 80px 20px;
+    background-color: #111;
+    text-align: center;
+}
+
+.featuresTitle {
+    font-size: 2.5rem;
+    color: #ff3333;
+    margin-bottom: 60px;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.featuresGrid {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    flex-wrap: wrap;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.featureCard {
+    background-color: #1a1a1a;
+    padding: 40px 30px;
+    border-radius: 15px;
+    width: 300px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.featureIcon {
+    font-size: 3rem;
+    margin-bottom: 20px;
+}
+
+.featureCardTitle {
+    font-size: 1.5rem;
+    color: #e9e2e2;
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+.featureCardText {
+    color: #aaa;
+    line-height: 1.6;
+}
+
+/* Theme Toggle Button */
+.theme-toggle {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 100;
+    padding: 10px 15px;
+    background-color: #333;
+    color: #fff;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: bold;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    transition: background-color 0.3s;
+}
+
+.theme-toggle:hover {
+    background-color: #555;
+}
+
+/* Light Mode Styles */
+body.light-mode .container {
+    background-color: #f4f4f9;
+    color: #333;
+}
+
+.light-mode .heroOverlay {
+    background-color: transparent;
+}
+
+.light-mode .subtitle {
+    color: #fff;
+}
+
+.light-mode .description {
+    color: #e0e0e0;
+}
+
+.light-mode .featuresSection {
+    background-color: #fff;
+}
+
+.light-mode .featureCard {
+    background-color: #f9f9f9;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.light-mode .featureCardTitle {
+    color: #222;
+}
+
+.light-mode .featureCardText {
+    color: #555;
+}
+
+.light-mode .theme-toggle {
+    background-color: #ddd;
+    color: #333;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.light-mode .theme-toggle:hover {
+    background-color: #ccc;
+}
+
+/* New Sections Styles */
+.sectionTitle:hover {
+    color: red;
+}
+
+.plansSectionTitle {
+    font-size: 3rem;
+    color: #ff3333;
+    margin-bottom: 60px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.plansSection {
+    padding: 80px 20px;
+    background-color: #0a0a0a;
+}
+
+.plansGrid {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    flex-wrap: wrap;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.planCard {
+    background-color: #1a1a1a;
+    padding: 40px;
+    border-radius: 15px;
+    width: 280px;
+    text-align: center;
+    border: 1px solid #333;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.planCard:hover {
+    transform: translateY(-10px);
+    border-color: #ff3333;
+    box-shadow: 0 15px 40px rgba(255, 51, 51, 0.2);
+}
+
+.planTitle {
+    font-size: 1.8rem;
+    color: #fff;
+    margin-bottom: 20px;
+}
+
+.planPrice {
+    font-size: 3rem;
+    color: #ff3333;
+    font-weight: 700;
+    margin-bottom: 30px;
+}
+
+.planPrice span {
+    font-size: 1.2rem;
+    color: #aaa;
+}
+
+.planFeatures {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    color: #ccc;
+}
+
+.planFeatures li {
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+}
+
+.infoSection {
+    padding: 60px 20px;
+    background-color: #111;
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 40px;
+    text-align: center;
+}
+
+.infoBlock {
+    max-width: 300px;
+}
+
+.infoTitle {
+    font-size: 1.5rem;
+    color: #ff3333;
+    margin-bottom: 20px;
+    letter-spacing: 2px;
+}
+
+.infoBlock p {
+    color: #bbb;
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+}
+
+/* Light Mode Overrides for New Sections */
+.light-mode .plansSection {
+    background-color: #f4f4f9;
+}
+
+.light-mode .planCard {
+    background-color: #fff;
+    border-color: #ddd;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.light-mode .planTitle {
+    color: #333;
+}
+
+.light-mode .planFeatures {
+    color: #555;
+}
+
+.light-mode .infoSection {
+    background-color: #eaeaea;
+}
+
+.light-mode .infoBlock p {
+    color: #444;
+}
