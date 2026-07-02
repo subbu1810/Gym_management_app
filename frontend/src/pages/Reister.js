@@ -76,9 +76,14 @@ const Register = () => {
         if (fieldVal && fieldVal.length > 0 && fieldVal.length !== 10) {
           newErrors[field] = "please enter 10 digit mobile number";
         } else if (fieldVal && fieldVal.length === 10) {
-          const isDuplicateField = ['phone', 'whatsappNumber', 'emergencyContactNumber']
-            .filter(f => f !== field)
-            .some(f => currentValues[f] === fieldVal);
+          let isDuplicateField = false;
+          if (field === 'phone') {
+            isDuplicateField = currentValues.phone === currentValues.emergencyContactNumber && currentValues.emergencyContactNumber !== '';
+          } else if (field === 'whatsappNumber') {
+            isDuplicateField = currentValues.whatsappNumber === currentValues.emergencyContactNumber && currentValues.emergencyContactNumber !== '';
+          } else if (field === 'emergencyContactNumber') {
+            isDuplicateField = (currentValues.emergencyContactNumber === currentValues.phone && currentValues.phone !== '') || (currentValues.emergencyContactNumber === currentValues.whatsappNumber && currentValues.whatsappNumber !== '');
+          }
 
           const isDuplicateDB = bookings.some(b => b.phone === fieldVal || b.whatsappNumber === fieldVal || b.emergencyContactNumber === fieldVal);
 
@@ -120,6 +125,26 @@ const Register = () => {
       }
     }
 
+    if (name === 'age') {
+      let newErrors = { ...errors };
+      if (value && parseInt(value, 10) < 14) {
+        newErrors.age = "below 14 age is not allowed";
+      } else {
+        delete newErrors.age;
+      }
+      setErrors(newErrors);
+    }
+
+    if (name === 'plan_type') {
+      let newAmount = '1500';
+      if (value === '3 Months') newAmount = '4500';
+      else if (value === '6 Months') newAmount = '9000';
+      else if (value === 'Yearly') newAmount = '18000';
+
+      setFormData({ ...formData, [name]: value, amount: newAmount });
+      return;
+    }
+
     setFormData({ ...formData, [name]: value });
   };
 
@@ -153,7 +178,7 @@ const Register = () => {
       tempErrors.phone = "please enter 10 digit mobile number";
     } else if (!/^[6-9]\d{9}$/.test(formData.phone)) {
       tempErrors.phone = "starts with 6,7,8,9 only this numbers and enter 10 digit number only";
-    } else if (formData.phone === formData.whatsappNumber || formData.phone === formData.emergencyContactNumber || checkPhoneDuplicateDB(formData.phone)) {
+    } else if (formData.phone === formData.emergencyContactNumber || checkPhoneDuplicateDB(formData.phone)) {
       tempErrors.phone = "this is already used .please use another number";
     }
 
@@ -163,7 +188,7 @@ const Register = () => {
       tempErrors.whatsappNumber = "please enter 10 digit mobile number";
     } else if (!/^[6-9]\d{9}$/.test(formData.whatsappNumber)) {
       tempErrors.whatsappNumber = "starts with 6,7,8,9 only this numbers and enter 10 digit number only";
-    } else if (formData.whatsappNumber === formData.phone || formData.whatsappNumber === formData.emergencyContactNumber || checkPhoneDuplicateDB(formData.whatsappNumber)) {
+    } else if (formData.whatsappNumber === formData.emergencyContactNumber || checkPhoneDuplicateDB(formData.whatsappNumber)) {
       tempErrors.whatsappNumber = "this is already used .please use another number";
     }
 
@@ -178,6 +203,13 @@ const Register = () => {
     }
 
     if (!formData.dateOfBirth) tempErrors.dateOfBirth = "Date of birth is required";
+
+    if (!formData.age) {
+      tempErrors.age = "Age is required";
+    } else if (parseInt(formData.age, 10) < 14) {
+      tempErrors.age = "below 14 age is not allowed";
+    }
+
     if (!formData.address) tempErrors.address = "Address is required";
 
     if (!formData.pincode) {
@@ -248,6 +280,7 @@ const Register = () => {
             <div className="form-group">
               <label>Age *</label>
               <input type="number" name="age" onChange={handleChange} value={formData.age} />
+              {errors.age && <span className="error">{errors.age}</span>}
             </div>
           </div>
 
@@ -401,6 +434,12 @@ const Register = () => {
                 <option value="6 Months">6 Months</option>
                 <option value="Yearly">Yearly</option>
               </select>
+            </div>
+
+            <div className="form-group">
+              <label>Total Amount (Rs)</label>
+              <input type="text" name="amount" value={formData.amount} readOnly style={{ cursor: 'not-allowed' }} className="amount-input" />
+              {errors.amount && <span className="error">{errors.amount}</span>}
             </div>
 
             <div className="form-group">

@@ -275,10 +275,12 @@ const Dashboard = () => {
             <p className="stat-value">{stats.totalBookings}</p>
           </div>
           <div
-            className="stat-card stat-revenue"
+            className="stat-card stat-revenue clickable"
+            onClick={() => { setActiveTab('payments'); setPaymentFilter('Success'); }}
           >
             <h3>Success Amount</h3>
             <p className="stat-value">Rs. {stats.revenue}</p>
+            <p className="stat-subtext" style={{ margin: '5px 0' }}>Total Amount: Rs. {stats.totalAmount}</p>
             <p className="stat-subtext">{stats.paymentSuccess} Successful Payments</p>
           </div>
           <div

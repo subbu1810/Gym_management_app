@@ -103,7 +103,7 @@ const LandingPage = () => {
                     </div>
                     <div className="planCard">
                         <h3 className="planTitle">Pro</h3>
-                        <p className="planPrice">₹1200<span>/mo</span></p>
+                        <p className="planPrice">₹1300<span>/mo</span></p>
                         <ul className="planFeatures">
                             <li>All Basic features</li>
                             <li>Unlimited group classes</li>
@@ -112,7 +112,7 @@ const LandingPage = () => {
                     </div>
                     <div className="planCard">
                         <h3 className="planTitle">Elite</h3>
-                        <p className="planPrice">₹1400<span>/mo</span></p>
+                        <p className="planPrice">₹1500<span>/mo</span></p>
                         <ul className="planFeatures">
                             <li>All Pro features</li>
                             <li>Unlimited personal training</li>

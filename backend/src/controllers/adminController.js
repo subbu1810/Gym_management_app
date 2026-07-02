@@ -10,9 +10,11 @@ exports.getDashboardStats = async (req, res) => {
         let paymentFailed = 0;
         let paymentPending = 0;
         let revenue = 0;
+        let totalAmount = 0;
 
         bookings.forEach(b => {
             totalUsers.add(b.email);
+            totalAmount += parseFloat(b.amount || 0);
             if (b.payment_status === 'Success') {
                 paymentSuccess++;
                 revenue += parseFloat(b.amount || 0);
@@ -32,6 +34,7 @@ exports.getDashboardStats = async (req, res) => {
                 paymentFailed: paymentFailed,
                 paymentPending: paymentPending,
                 revenue: revenue,
+                totalAmount: totalAmount,
             }
         });
     } catch (error) {

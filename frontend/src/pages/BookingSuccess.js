@@ -13,7 +13,7 @@ const BookingSuccess = () => {
   return (
     <div className="container" style={{ maxWidth: '600px', padding: '20px', margin: '40px auto', background: 'var(--surface-color)', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}>
       <div style={{ textAlign: 'center', marginBottom: '30px' }}>
-        <h2 style={{ color: 'var(--success-color, #10b981)', marginBottom: '10px' }}>Payment Successful!</h2>
+        <h1 style={{ color: 'red', marginBottom: '10px' }}>Payment Successful!</h1>
         <p style={{ fontSize: '1.1rem' }}>Thank you for your payment. Your booking has been confirmed!</p>
         {booking && (
           <p style={{ marginTop: '10px', color: 'var(--text-secondary)' }}>
