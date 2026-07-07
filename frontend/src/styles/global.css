@@ -60,15 +60,6 @@ body {
   color: white;
 }
 
-h2 {
-  font-weight: 700;
-  letter-spacing: -0.025em;
-  background: linear-gradient(to right, #111827, #3b82f6);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  margin-bottom: 2rem;
-}
-
 *:focus {
   outline: none !important;
 }

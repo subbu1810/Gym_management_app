@@ -35,7 +35,7 @@ const Navbar = () => {
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
         <Link to="/" style={{ color: 'inherit', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px' }}>
-          {gymLogo && <img src={gymLogo} alt="Gym Logo" style={{ height: '30px', objectFit: 'contain' }} />}
+          {gymLogo && <img src={gymLogo} alt="Gym Logo" style={{ height: '50px', objectFit: 'contain' }} />}
           <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--text-primary)' }}>
             {gymName}
           </h1>

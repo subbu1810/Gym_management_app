@@ -28,8 +28,8 @@ exports.verifyPayment = async (req, res) => {
 
     try {
         // Update booking status directly without razorpay verification
-        await BookingModel.update(bookingId, { 
-            payment_status: 'Success', 
+        await BookingModel.update(bookingId, {
+            payment_status: 'Success',
             status: 'Confirmed'
         });
 

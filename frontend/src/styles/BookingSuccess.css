@@ -1,0 +1,235 @@
+.success-page-wrapper {
+  min-height: calc(100vh - 80px);
+  /* Assuming navbar is 80px */
+  background: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px;
+  font-family: 'Inter', sans-serif;
+}
+
+.success-card {
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  width: 100%;
+  max-width: 650px;
+  padding: 40px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Optional abstract background lines for the card */
+.success-card::before,
+.success-card::after {
+  content: '';
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  border: 2px solid rgba(45, 179, 163, 0.05);
+  border-radius: 40px;
+  transform: rotate(45deg);
+  z-index: 0;
+}
+
+.success-card::before {
+  top: -150px;
+  left: -150px;
+}
+
+.success-card::after {
+  bottom: -150px;
+  right: -150px;
+}
+
+.success-content {
+  position: relative;
+  z-index: 1;
+}
+
+.brand-logo {
+  color: #2db3a3;
+  font-size: 28px;
+  font-weight: 800;
+  font-style: italic;
+  letter-spacing: -0.5px;
+  margin-bottom: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  line-height: 1;
+}
+
+.brand-logo span {
+  font-size: 14px;
+  color: #718096;
+  font-style: normal;
+  letter-spacing: 1px;
+  margin-top: 4px;
+}
+
+.success-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.success-title {
+  color: #e53e3e;
+  font-size: 32px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.success-icon-badge {
+  background: #38a169;
+  color: white;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  box-shadow: 0 0 20px rgba(56, 161, 105, 0.4);
+}
+
+.success-subtitle {
+  font-size: 18px;
+  color: #2d3748;
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+
+.success-email-text {
+  font-size: 16px;
+  color: #4a5568;
+  margin-bottom: 35px;
+}
+
+.receipt-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e2e8f0;
+  margin: 0 auto 35px;
+  max-width: 500px;
+  text-align: left;
+  overflow: hidden;
+}
+
+.receipt-header {
+  background: #bde0db;
+  padding: 15px 25px;
+  font-weight: 700;
+  font-size: 18px;
+  color: #1a202c;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.receipt-body {
+  padding: 25px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.receipt-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+  color: #2d3748;
+}
+
+.receipt-icon {
+  color: #718096;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.receipt-item strong {
+  font-weight: 600;
+  color: #1a202c;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #c6f6d5;
+  color: #22543d;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.receipt-footer-text {
+  padding: 0 25px 25px;
+  font-size: 13px;
+  color: #718096;
+  text-align: center;
+  line-height: 1.4;
+  border-top: 1px solid #edf2f7;
+  padding-top: 20px;
+  margin: 0 25px;
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.btn-print,
+.btn-home {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: white;
+}
+
+.btn-print {
+  background-color: #4a5568;
+}
+
+.btn-print:hover {
+  background-color: #2d3748;
+}
+
+.btn-home {
+  background-color: #3182ce;
+}
+
+.btn-home:hover {
+  background-color: #2b6cb0;
+}
+
+.footer-note {
+  font-size: 14px;
+  color: #718096;
+}
+
+@media (max-width: 600px) {
+  .receipt-body {
+    grid-template-columns: 1fr;
+  }
+
+  .success-header-row {
+    flex-direction: column;
+  }
+}

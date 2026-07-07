@@ -1,10 +1,5 @@
 const db = require('../config/db');
 
-let fallbackBookings = [
-    { id: 1, full_name: 'John Doe', email: 'john@example.com', phone: '1234567890', plan_type: 'Monthly', booking_date: '2023-12-01', gym_slot: 'Morning', status: 'Pending', age: '25', gender: 'Male', address: '123 Main St', medical_condition: 'No', medical_details: '' }
-];
-let nextId = 2;
-
 class BookingModel {
     static async create(booking) {
         const { 
@@ -13,161 +8,176 @@ class BookingModel {
         } = booking;
         
         try {
-            // Attempt to create columns if they don't exist (hacky migration for dev)
-            try { await db.query(`ALTER TABLE bookings ADD COLUMN booking_date VARCHAR(50)`); } catch(e){}
-            try { await db.query(`ALTER TABLE bookings ADD COLUMN gym_slot VARCHAR(50)`); } catch(e){}
-            try { await db.query(`ALTER TABLE bookings ADD COLUMN status VARCHAR(50) DEFAULT 'Pending'`); } catch(e){}
+            // 1. Insert into Users table
+            // We use INSERT IGNORE or check if user exists. We will check if email exists.
+            let user_id;
+            const [existingUsers] = await db.query('SELECT id FROM users WHERE email = ?', [email]);
+            if (existingUsers.length > 0) {
+                user_id = existingUsers[0].id;
+                // Update user details just in case
+                await db.query(
+                    `UPDATE users SET firstName=?, lastName=?, full_name=?, phone=?, dateOfBirth=?, whatsappNumber=?, gender=?, age=?, address=?, city=?, state=?, pincode=?, emergencyContactName=?, emergencyContactNumber=?, occupation=?, idProofType=?, idProofNumber=?, height=?, weight=?, bloodGroup=?, medical_condition=?, medical_details=?, profilePhoto=?, idProofPhoto=? WHERE id=?`,
+                    [firstName, lastName, full_name, phone, dateOfBirth, whatsappNumber, gender, age, address, city, state, pincode, emergencyContactName, emergencyContactNumber, occupation, idProofType, idProofNumber, height, weight, bloodGroup, medical_condition, medical_details, profilePhoto, idProofPhoto, user_id]
+                );
+            } else {
+                const [userResult] = await db.query(
+                    `INSERT INTO users (
+                        firstName, lastName, full_name, email, phone, dateOfBirth, whatsappNumber, gender, age, address, city, state, pincode, emergencyContactName, emergencyContactNumber, occupation, idProofType, idProofNumber, height, weight, bloodGroup, medical_condition, medical_details, profilePhoto, idProofPhoto
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                    [firstName, lastName, full_name, email, phone, dateOfBirth, whatsappNumber, gender, age, address, city, state, pincode, emergencyContactName, emergencyContactNumber, occupation, idProofType, idProofNumber, height, weight, bloodGroup, medical_condition, medical_details, profilePhoto, idProofPhoto]
+                );
+                user_id = userResult.insertId;
+            }
 
-            try { await db.query(`ALTER TABLE bookings ADD COLUMN age VARCHAR(10)`); } catch(e){}
-            try { await db.query(`ALTER TABLE bookings ADD COLUMN gender VARCHAR(20)`); } catch(e){}
-            try { await db.query(`ALTER TABLE bookings ADD COLUMN address TEXT`); } catch(e){}
-            try { await db.query(`ALTER TABLE bookings ADD COLUMN medical_condition VARCHAR(10)`); } catch(e){}
-            try { await db.query(`ALTER TABLE bookings ADD COLUMN medical_details TEXT`); } catch(e){}
-            
-            try { await db.query(`ALTER TABLE bookings ADD COLUMN amount DECIMAL(10, 2) NOT NULL DEFAULT 0.00`); } catch(e){}
-            try { await db.query(`ALTER TABLE bookings ADD COLUMN payment_status VARCHAR(50) DEFAULT 'Pending'`); } catch(e){}
-            try { await db.query(`ALTER TABLE bookings ADD COLUMN terms_accepted BOOLEAN DEFAULT FALSE`); } catch(e){}
-
-            // NEW FIELDS
-            try { await db.query(`ALTER TABLE bookings ADD COLUMN firstName VARCHAR(100)`); } catch(e){}
-            try { await db.query(`ALTER TABLE bookings ADD COLUMN lastName VARCHAR(100)`); } catch(e){}
-            try { await db.query(`ALTER TABLE bookings ADD COLUMN dateOfBirth VARCHAR(50)`); } catch(e){}
-            try { await db.query(`ALTER TABLE bookings ADD COLUMN whatsappNumber VARCHAR(50)`); } catch(e){}
-            try { await db.query(`ALTER TABLE bookings ADD COLUMN city VARCHAR(100)`); } catch(e){}
-            try { await db.query(`ALTER TABLE bookings ADD COLUMN state VARCHAR(100)`); } catch(e){}
-            try { await db.query(`ALTER TABLE bookings ADD COLUMN pincode VARCHAR(20)`); } catch(e){}
-            try { await db.query(`ALTER TABLE bookings ADD COLUMN emergencyContactName VARCHAR(150)`); } catch(e){}
-            try { await db.query(`ALTER TABLE bookings ADD COLUMN emergencyContactNumber VARCHAR(50)`); } catch(e){}
-            try { await db.query(`ALTER TABLE bookings ADD COLUMN occupation VARCHAR(100)`); } catch(e){}
-            try { await db.query(`ALTER TABLE bookings ADD COLUMN idProofType VARCHAR(50)`); } catch(e){}
-            try { await db.query(`ALTER TABLE bookings ADD COLUMN idProofNumber VARCHAR(100)`); } catch(e){}
-            try { await db.query(`ALTER TABLE bookings ADD COLUMN height VARCHAR(20)`); } catch(e){}
-            try { await db.query(`ALTER TABLE bookings ADD COLUMN weight VARCHAR(20)`); } catch(e){}
-            try { await db.query(`ALTER TABLE bookings ADD COLUMN bloodGroup VARCHAR(10)`); } catch(e){}
-            try { await db.query(`ALTER TABLE bookings ADD COLUMN referralCode VARCHAR(50)`); } catch(e){}
-            try { await db.query(`ALTER TABLE bookings ADD COLUMN profilePhoto LONGTEXT`); } catch(e){}
-            try { await db.query(`ALTER TABLE bookings ADD COLUMN idProofPhoto LONGTEXT`); } catch(e){}
-
-            const [result] = await db.query(
-                `INSERT INTO bookings (
-                    full_name, email, phone, plan_type, booking_date, gym_slot, status, age, gender, address, medical_condition, medical_details, amount, payment_status, terms_accepted,
-                    firstName, lastName, dateOfBirth, whatsappNumber, city, state, pincode, emergencyContactName, emergencyContactNumber, occupation, idProofType, idProofNumber, height, weight, bloodGroup, referralCode, profilePhoto, idProofPhoto
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                [
-                    full_name, email, phone, plan_type, booking_date, gym_slot || 'Morning', status || 'Pending', age, gender, address, medical_condition, medical_details, amount, payment_status || 'Pending', terms_accepted || false,
-                    firstName, lastName, dateOfBirth, whatsappNumber, city, state, pincode, emergencyContactName, emergencyContactNumber, occupation, idProofType, idProofNumber, height, weight, bloodGroup, referralCode, profilePhoto, idProofPhoto
-                ]
+            // 2. Insert into Bookings table
+            const [bookingResult] = await db.query(
+                `INSERT INTO bookings (user_id, plan_type, booking_date, gym_slot, status, referralCode, terms_accepted) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+                [user_id, plan_type, booking_date, gym_slot || 'Morning', status || 'Pending', referralCode, terms_accepted || false]
             );
-            return result.insertId;
+            const booking_id = bookingResult.insertId;
+
+            // 3. Insert into Payments table
+            await db.query(
+                `INSERT INTO payments (booking_id, amount, payment_status) VALUES (?, ?, ?)`,
+                [booking_id, amount || 0, payment_status || 'Pending']
+            );
+
+            return booking_id;
         } catch (error) {
-            console.error("DB Error in create, falling back to memory:", error.message);
-            const newBooking = { 
-                id: nextId++, full_name, email, phone, plan_type, booking_date, gym_slot: gym_slot || 'Morning', status: status || 'Pending', age, gender, address, medical_condition, medical_details, amount, payment_status: payment_status || 'Pending', terms_accepted: terms_accepted || false,
-                firstName, lastName, dateOfBirth, whatsappNumber, city, state, pincode, emergencyContactName, emergencyContactNumber, occupation, idProofType, idProofNumber, height, weight, bloodGroup, referralCode, profilePhoto, idProofPhoto
-            };
-            fallbackBookings.push(newBooking);
-            return newBooking.id;
+            console.error("DB Error in create:", error.message);
+            throw error;
         }
     }
 
     static async findById(id) {
         try {
-            const [rows] = await db.query('SELECT * FROM bookings WHERE id = ?', [id]);
-            if (rows && rows.length > 0) return rows[0];
-            return fallbackBookings.find(b => b.id === Number(id)) || null;
+            const sql = `
+                SELECT 
+                    b.id, b.plan_type, b.booking_date, b.gym_slot, b.status, b.referralCode, b.terms_accepted, b.created_at,
+                    u.firstName, u.lastName, u.full_name, u.email, u.phone, u.dateOfBirth, u.whatsappNumber, u.gender, u.age, u.address, u.city, u.state, u.pincode, u.emergencyContactName, u.emergencyContactNumber, u.occupation, u.idProofType, u.idProofNumber, u.height, u.weight, u.bloodGroup, u.medical_condition, u.medical_details, u.profilePhoto, u.idProofPhoto,
+                    p.amount, p.payment_status, p.transaction_id, p.currency
+                FROM bookings b
+                LEFT JOIN users u ON b.user_id = u.id
+                LEFT JOIN payments p ON b.id = p.booking_id
+                WHERE b.id = ?
+            `;
+            const [rows] = await db.query(sql, [id]);
+            return rows.length > 0 ? rows[0] : null;
         } catch (error) {
-            console.error("DB Error in findById, returning fallback:", error.message);
-            return fallbackBookings.find(b => b.id === Number(id)) || null;
+            console.error("DB Error in findById:", error.message);
+            throw error;
         }
     }
 
     static async findAll(query = {}) {
         try {
-            let sql = 'SELECT * FROM bookings WHERE 1=1';
+            let sql = `
+                SELECT 
+                    b.id, b.plan_type, b.booking_date, b.gym_slot, b.status, b.referralCode, b.terms_accepted, b.created_at,
+                    u.firstName, u.lastName, u.full_name, u.email, u.phone, u.dateOfBirth, u.whatsappNumber, u.gender, u.age, u.address, u.city, u.state, u.pincode, u.emergencyContactName, u.emergencyContactNumber, u.occupation, u.idProofType, u.idProofNumber, u.height, u.weight, u.bloodGroup, u.medical_condition, u.medical_details,
+                    p.amount, p.payment_status, p.transaction_id, p.currency
+                FROM bookings b
+                LEFT JOIN users u ON b.user_id = u.id
+                LEFT JOIN payments p ON b.id = p.booking_id
+                WHERE 1=1
+            `;
             let params = [];
             
             if (query.name) {
-                sql += ' AND full_name LIKE ?';
+                sql += ' AND u.full_name LIKE ?';
                 params.push(`%${query.name}%`);
             }
             if (query.status && query.status !== 'All') {
-                sql += ' AND status = ?';
+                sql += ' AND b.status = ?';
                 params.push(query.status);
             }
             
-            sql += ' ORDER BY id DESC'; // Assuming id is auto-increment
+            sql += ' ORDER BY b.id DESC';
             
             const [rows] = await db.query(sql, params);
-            
-            // Merge with fallbackBookings
-            let fallbackResults = fallbackBookings;
-            if (query.name) {
-                fallbackResults = fallbackResults.filter(b => b.full_name.toLowerCase().includes(query.name.toLowerCase()));
-            }
-            if (query.status && query.status !== 'All') {
-                fallbackResults = fallbackResults.filter(b => b.status === query.status);
-            }
-            
-            // Combine both arrays and sort by id descending
-            const combined = [...rows, ...fallbackResults];
-            combined.sort((a, b) => b.id - a.id);
-            return combined;
+            return rows;
         } catch (error) {
-            console.error("DB Error in findAll, returning fallback:", error.message);
-            let results = fallbackBookings;
-            if (query.name) {
-                results = results.filter(b => b.full_name.toLowerCase().includes(query.name.toLowerCase()));
-            }
-            if (query.status && query.status !== 'All') {
-                results = results.filter(b => b.status === query.status);
-            }
-            return results;
+            console.error("DB Error in findAll:", error.message);
+            throw error;
         }
     }
 
     static async update(id, data) {
+        // If data contains payment info, we update payment table.
+        // For simplicity, we can just look for specific keys or update tables if fields match.
         try {
-            const keys = Object.keys(data);
-            if (keys.length === 0) return false;
+            let bookingUpdated = false;
+            let paymentUpdated = false;
+            let userUpdated = false;
 
-            const setClause = keys.map(k => `${k} = ?`).join(', ');
-            const values = Object.values(data);
-            
-            const [result] = await db.query(`UPDATE bookings SET ${setClause} WHERE id = ?`, [...values, id]);
-            if (result.affectedRows > 0) return true;
-            
-            // If 0 rows affected, it might be in fallbackBookings
-            const index = fallbackBookings.findIndex(b => b.id === Number(id));
-            if (index !== -1) {
-                fallbackBookings[index] = { ...fallbackBookings[index], ...data };
-                return true;
+            const bookingKeys = ['plan_type', 'booking_date', 'gym_slot', 'status', 'referralCode', 'terms_accepted'];
+            const paymentKeys = ['amount', 'payment_status', 'transaction_id', 'currency'];
+            const userKeys = ['firstName', 'lastName', 'full_name', 'email', 'phone', 'dateOfBirth', 'whatsappNumber', 'gender', 'age', 'address', 'city', 'state', 'pincode', 'emergencyContactName', 'emergencyContactNumber', 'occupation', 'idProofType', 'idProofNumber', 'height', 'weight', 'bloodGroup', 'medical_condition', 'medical_details', 'profilePhoto', 'idProofPhoto'];
+
+            const bookingData = {};
+            const paymentData = {};
+            const userData = {};
+
+            for (const key in data) {
+                if (bookingKeys.includes(key)) bookingData[key] = data[key];
+                else if (paymentKeys.includes(key)) paymentData[key] = data[key];
+                else if (userKeys.includes(key)) userData[key] = data[key];
             }
-            return false;
+
+            if (Object.keys(bookingData).length > 0) {
+                const setClause = Object.keys(bookingData).map(k => `${k} = ?`).join(', ');
+                const values = Object.values(bookingData);
+                await db.query(`UPDATE bookings SET ${setClause} WHERE id = ?`, [...values, id]);
+                bookingUpdated = true;
+            }
+
+            if (Object.keys(paymentData).length > 0) {
+                const setClause = Object.keys(paymentData).map(k => `${k} = ?`).join(', ');
+                const values = Object.values(paymentData);
+                await db.query(`UPDATE payments SET ${setClause} WHERE booking_id = ?`, [...values, id]);
+                paymentUpdated = true;
+            }
+
+            if (Object.keys(userData).length > 0) {
+                // Get user_id from booking
+                const [bRows] = await db.query('SELECT user_id FROM bookings WHERE id = ?', [id]);
+                if (bRows.length > 0) {
+                    const user_id = bRows[0].user_id;
+                    const setClause = Object.keys(userData).map(k => `${k} = ?`).join(', ');
+                    const values = Object.values(userData);
+                    await db.query(`UPDATE users SET ${setClause} WHERE id = ?`, [...values, user_id]);
+                    userUpdated = true;
+                }
+            }
+
+            return bookingUpdated || paymentUpdated || userUpdated;
         } catch (error) {
-            console.error("DB Error in update, using fallback:", error.message);
-            const index = fallbackBookings.findIndex(b => b.id === Number(id));
-            if (index !== -1) {
-                fallbackBookings[index] = { ...fallbackBookings[index], ...data };
-                return true;
-            }
-            return false;
+            console.error("DB Error in update:", error.message);
+            throw error;
         }
     }
 
     static async delete(id) {
         try {
-            const [result] = await db.query('DELETE FROM bookings WHERE id = ?', [id]);
-            if (result.affectedRows > 0) return true;
+            // Get the user_id before deleting the booking
+            const [bRows] = await db.query('SELECT user_id FROM bookings WHERE id = ?', [id]);
             
-            // Check fallback if not found in DB
-            const initialLength = fallbackBookings.length;
-            fallbackBookings = fallbackBookings.filter(b => b.id !== Number(id));
-            return fallbackBookings.length < initialLength;
+            // Because of ON DELETE CASCADE on foreign keys, deleting booking will delete payments too
+            const [result] = await db.query('DELETE FROM bookings WHERE id = ?', [id]);
+            
+            // If the booking had a user, check if they have other bookings. If not, delete the user.
+            if (bRows.length > 0) {
+                const user_id = bRows[0].user_id;
+                const [otherBookings] = await db.query('SELECT id FROM bookings WHERE user_id = ?', [user_id]);
+                if (otherBookings.length === 0) {
+                    await db.query('DELETE FROM users WHERE id = ?', [user_id]);
+                }
+            }
+            
+            return result.affectedRows > 0;
         } catch (error) {
-            console.error("DB Error in delete, using fallback:", error.message);
-            const initialLength = fallbackBookings.length;
-            fallbackBookings = fallbackBookings.filter(b => b.id !== Number(id));
-            return fallbackBookings.length < initialLength;
+            console.error("DB Error in delete:", error.message);
+            throw error;
         }
     }
 }

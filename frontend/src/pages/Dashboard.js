@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import bookingService from '../services/bookingService';
+import { bookingsAPI, adminAPI } from '../services/api';
 import { CSVLink } from 'react-csv';
 import 'jspdf-autotable';
 import toast from 'react-hot-toast';
@@ -18,11 +18,21 @@ const Dashboard = () => {
 
   const [gymNameInput, setGymNameInput] = useState(localStorage.getItem('gymName') || 'POWER GYM');
   const [gymLogoInput, setGymLogoInput] = useState(localStorage.getItem('gymLogo') || '');
+  const [gymImage1Input, setGymImage1Input] = useState(localStorage.getItem('gymImage1') || '');
+  const [gymImage2Input, setGymImage2Input] = useState(localStorage.getItem('gymImage2') || '');
+  const [gymImage3Input, setGymImage3Input] = useState(localStorage.getItem('gymImage3') || '');
   const [gymAddressInput, setGymAddressInput] = useState(localStorage.getItem('gymAddress') || 'Maski Road Sindhanur-584128');
   const [gymEmailInput, setGymEmailInput] = useState(localStorage.getItem('gymEmail') || 'contact@powergym.com');
   const [gymMobileInput, setGymMobileInput] = useState(localStorage.getItem('gymMobile') || '9893457839');
   const [gymHoursMonFriInput, setGymHoursMonFriInput] = useState(localStorage.getItem('gymHoursMonFri') || '5:00 AM - 11:00 PM');
   const [gymHoursSatSunInput, setGymHoursSatSunInput] = useState(localStorage.getItem('gymHoursSatSun') || '7:00 AM - 9:00 PM');
+
+  const [feeMonthlyInput, setFeeMonthlyInput] = useState(localStorage.getItem('feeMonthly') || '1500');
+  const [fee3MonthsInput, setFee3MonthsInput] = useState(localStorage.getItem('fee3Months') || '4500');
+  const [fee6MonthsInput, setFee6MonthsInput] = useState(localStorage.getItem('fee6Months') || '9000');
+  const [feeYearlyInput, setFeeYearlyInput] = useState(localStorage.getItem('feeYearly') || '18000');
+
+  const [gymTermsInput, setGymTermsInput] = useState(localStorage.getItem('gymTerms') || '');
 
   const uniqueUsers = Array.from(new Map(bookings.map(item => [item.email, item])).values())
     .filter(user => {
@@ -53,7 +63,7 @@ const Dashboard = () => {
 
   const fetchBookings = async () => {
     try {
-      const data = await bookingService.getAllBookings({ name: searchTerm, status: statusFilter });
+      const data = await bookingsAPI.getAll({ name: searchTerm, status: statusFilter });
       setBookings(data);
     } catch (error) {
       console.error('Failed to fetch bookings:', error);
@@ -62,7 +72,7 @@ const Dashboard = () => {
 
   const fetchStats = async () => {
     try {
-      const res = await bookingService.getDashboardStats();
+      const res = await adminAPI.getDashboardStats();
       if (res.success) {
         setStats(res.stats);
       }
@@ -94,7 +104,7 @@ const Dashboard = () => {
 
   const confirmDelete = async (id) => {
     try {
-      await bookingService.deleteBooking(id);
+      await bookingsAPI.delete(id);
       fetchBookings(); // Refresh
       fetchStats();
       toast.success('Deleted Successfully', {
@@ -118,7 +128,7 @@ const Dashboard = () => {
         updateData.payment_status = 'Pending';
       }
 
-      await bookingService.updateBooking(id, updateData);
+      await bookingsAPI.update(id, updateData);
 
       setBookings(prevBookings => prevBookings.map(b => b.id === id ? { ...b, ...updateData } : b));
       if (selectedBooking && selectedBooking.id === id) {
@@ -131,6 +141,19 @@ const Dashboard = () => {
     } catch (error) {
       console.error('Failed to update booking:', error);
       toast.error('Failed to update booking status');
+    }
+  };
+
+  const handleViewDetails = async (booking) => {
+    // Show immediate partial data while fetching full data (for responsiveness)
+    setSelectedBooking({ ...booking, isLoading: true });
+    try {
+      const fullBooking = await bookingsAPI.getById(booking.id);
+      setSelectedBooking({ ...fullBooking, isLoading: false });
+    } catch (error) {
+      console.error('Failed to fetch full booking details:', error);
+      setSelectedBooking({ ...booking, isLoading: false });
+      toast.error('Failed to load full user details');
     }
   };
 
@@ -187,11 +210,19 @@ const Dashboard = () => {
     try {
       localStorage.setItem('gymName', gymNameInput);
       localStorage.setItem('gymLogo', gymLogoInput);
+      localStorage.setItem('gymImage1', gymImage1Input);
+      localStorage.setItem('gymImage2', gymImage2Input);
+      localStorage.setItem('gymImage3', gymImage3Input);
       localStorage.setItem('gymAddress', gymAddressInput);
       localStorage.setItem('gymEmail', gymEmailInput);
       localStorage.setItem('gymMobile', gymMobileInput);
       localStorage.setItem('gymHoursMonFri', gymHoursMonFriInput);
       localStorage.setItem('gymHoursSatSun', gymHoursSatSunInput);
+      localStorage.setItem('feeMonthly', feeMonthlyInput);
+      localStorage.setItem('fee3Months', fee3MonthsInput);
+      localStorage.setItem('fee6Months', fee6MonthsInput);
+      localStorage.setItem('feeYearly', feeYearlyInput);
+      localStorage.setItem('gymTerms', gymTermsInput);
 
       // Dispatch a custom event to notify other components in the same tab
       window.dispatchEvent(new Event('gymSettingsUpdated'));
@@ -204,6 +235,43 @@ const Dashboard = () => {
       } else {
         toast.error('Failed to save settings. Please try again.');
       }
+    }
+  };
+
+  const handleGenericImageUpload = (e, setInputFunc) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          const MAX_WIDTH = 500;
+          const MAX_HEIGHT = 500;
+
+          if (width > height) {
+            if (width > MAX_WIDTH) {
+              height *= MAX_WIDTH / width;
+              width = MAX_WIDTH;
+            }
+          } else {
+            if (height > MAX_HEIGHT) {
+              width *= MAX_HEIGHT / height;
+              height = MAX_HEIGHT;
+            }
+          }
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.6);
+          setInputFunc(compressedDataUrl);
+        };
+        img.src = event.target.result;
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -370,7 +438,7 @@ const Dashboard = () => {
                       </span>
                     </td>
                     <td>
-                      <button onClick={() => setSelectedBooking(booking)} className="action-btn">View</button>
+                      <button onClick={() => handleViewDetails(booking)} className="action-btn">View</button>
                       <button onClick={() => generateReceipt(booking)} className="action-btn btn-receipt">Receipt</button>
                       <button onClick={() => handleDelete(booking.id)} className="action-btn btn-delete">Delete</button>
                     </td>
@@ -417,7 +485,7 @@ const Dashboard = () => {
                     <td>{user.gender || 'N/A'}</td>
                     <td>{user.city || 'N/A'}</td>
                     <td>
-                      <button onClick={() => setSelectedBooking(user)} className="action-btn">View Details</button>
+                      <button onClick={() => handleViewDetails(user)} className="action-btn">View Details</button>
                     </td>
                   </tr>
                 ))}
@@ -468,7 +536,7 @@ const Dashboard = () => {
                       </span>
                     </td>
                     <td>
-                      <button onClick={() => setSelectedBooking(payment)} className="action-btn">View Details</button>
+                      <button onClick={() => handleViewDetails(payment)} className="action-btn">View Details</button>
                     </td>
                   </tr>
                 ))}
@@ -548,6 +616,50 @@ const Dashboard = () => {
             </div>
 
             <div className="form-group">
+              <label style={{ display: 'block', marginBottom: '4px', fontSize: '0.85rem' }}>Gym Fee (Monthly)</label>
+              <input
+                type="number"
+                value={feeMonthlyInput}
+                onChange={(e) => setFeeMonthlyInput(e.target.value)}
+                className="search-input"
+                style={{ width: '100%', padding: '6px 10px', fontSize: '0.85rem' }}
+              />
+            </div>
+
+            <div className="form-group">
+              <label style={{ display: 'block', marginBottom: '4px', fontSize: '0.85rem' }}>Gym Fee (3 Months)</label>
+              <input
+                type="number"
+                value={fee3MonthsInput}
+                onChange={(e) => setFee3MonthsInput(e.target.value)}
+                className="search-input"
+                style={{ width: '100%', padding: '6px 10px', fontSize: '0.85rem' }}
+              />
+            </div>
+
+            <div className="form-group">
+              <label style={{ display: 'block', marginBottom: '4px', fontSize: '0.85rem' }}>Gym Fee (6 Months)</label>
+              <input
+                type="number"
+                value={fee6MonthsInput}
+                onChange={(e) => setFee6MonthsInput(e.target.value)}
+                className="search-input"
+                style={{ width: '100%', padding: '6px 10px', fontSize: '0.85rem' }}
+              />
+            </div>
+
+            <div className="form-group">
+              <label style={{ display: 'block', marginBottom: '4px', fontSize: '0.85rem' }}>Gym Fee (Yearly)</label>
+              <input
+                type="number"
+                value={feeYearlyInput}
+                onChange={(e) => setFeeYearlyInput(e.target.value)}
+                className="search-input"
+                style={{ width: '100%', padding: '6px 10px', fontSize: '0.85rem' }}
+              />
+            </div>
+
+            <div className="form-group">
               <label style={{ display: 'block', marginBottom: '4px', fontSize: '0.85rem' }}>Gym Logo</label>
               <input
                 type="file"
@@ -559,7 +671,7 @@ const Dashboard = () => {
               {gymLogoInput && (
                 <div style={{ marginTop: '10px' }}>
                   <p style={{ marginBottom: '4px', fontSize: '0.85rem' }}>Current Logo:</p>
-                  <img src={gymLogoInput} alt="Gym Logo Preview" style={{ height: '60px', objectFit: 'contain', borderRadius: '5px', background: '#fff', padding: '5px' }} />
+                  <img src={gymLogoInput} alt="Gym Logo Preview" style={{ height: '80px', objectFit: 'contain', borderRadius: '5px', background: '#fff', padding: '5px' }} />
                   <button
                     onClick={() => setGymLogoInput('')}
                     className="action-btn btn-delete"
@@ -569,6 +681,48 @@ const Dashboard = () => {
                   </button>
                 </div>
               )}
+            </div>
+
+            <div className="form-group">
+              <label style={{ display: 'block', marginBottom: '4px', fontSize: '0.85rem' }}>Gym Image 1</label>
+              <input type="file" accept="image/*" onChange={(e) => handleGenericImageUpload(e, setGymImage1Input)} className="search-input" style={{ width: '100%', fontSize: '0.85rem' }} />
+              {gymImage1Input && (
+                <div style={{ marginTop: '10px' }}>
+                  <img src={gymImage1Input} alt="Gym Image 1 Preview" style={{ height: '80px', objectFit: 'contain', borderRadius: '5px', background: '#fff', padding: '5px' }} />
+                  <button onClick={() => setGymImage1Input('')} className="action-btn btn-delete" style={{ display: 'block', marginTop: '6px', fontSize: '0.8rem', padding: '4px 8px' }}>Remove Image 1</button>
+                </div>
+              )}
+            </div>
+            <div className="form-group">
+              <label style={{ display: 'block', marginBottom: '4px', fontSize: '0.85rem' }}>Gym Image 2</label>
+              <input type="file" accept="image/*" onChange={(e) => handleGenericImageUpload(e, setGymImage2Input)} className="search-input" style={{ width: '100%', fontSize: '0.85rem' }} />
+              {gymImage2Input && (
+                <div style={{ marginTop: '10px' }}>
+                  <img src={gymImage2Input} alt="Gym Image 2 Preview" style={{ height: '80px', objectFit: 'contain', borderRadius: '5px', background: '#fff', padding: '5px' }} />
+                  <button onClick={() => setGymImage2Input('')} className="action-btn btn-delete" style={{ display: 'block', marginTop: '6px', fontSize: '0.8rem', padding: '4px 8px' }}>Remove Image 2</button>
+                </div>
+              )}
+            </div>
+            <div className="form-group">
+              <label style={{ display: 'block', marginBottom: '4px', fontSize: '0.85rem' }}>Gym Image 3</label>
+              <input type="file" accept="image/*" onChange={(e) => handleGenericImageUpload(e, setGymImage3Input)} className="search-input" style={{ width: '100%', fontSize: '0.85rem' }} />
+              {gymImage3Input && (
+                <div style={{ marginTop: '10px' }}>
+                  <img src={gymImage3Input} alt="Gym Image 3 Preview" style={{ height: '80px', objectFit: 'contain', borderRadius: '5px', background: '#fff', padding: '5px' }} />
+                  <button onClick={() => setGymImage3Input('')} className="action-btn btn-delete" style={{ display: 'block', marginTop: '6px', fontSize: '0.8rem', padding: '4px 8px' }}>Remove Image 3</button>
+                </div>
+              )}
+            </div>
+
+            <div className="form-group">
+              <label style={{ display: 'block', marginBottom: '4px', fontSize: '0.85rem' }}>Gym Terms and Conditions</label>
+              <textarea
+                value={gymTermsInput}
+                onChange={(e) => setGymTermsInput(e.target.value)}
+                className="search-input"
+                placeholder="Enter Terms and Conditions here. You can use multiple lines."
+                style={{ width: '100%', minHeight: '150px', padding: '6px 10px', fontSize: '0.85rem' }}
+              />
             </div>
 
             <button onClick={handleSaveSettings} className="btn btn-primary" style={{ padding: '8px 16px', cursor: 'pointer', fontSize: '0.9rem', marginTop: '10px' }}>

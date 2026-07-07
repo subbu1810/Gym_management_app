@@ -16,6 +16,9 @@ const LandingPage = () => {
     const [gymMobile, setGymMobile] = useState(localStorage.getItem('gymMobile') || '(555) 123-4567');
     const [gymHoursMonFri, setGymHoursMonFri] = useState(localStorage.getItem('gymHoursMonFri') || '5:00 AM - 11:00 PM');
     const [gymHoursSatSun, setGymHoursSatSun] = useState(localStorage.getItem('gymHoursSatSun') || '7:00 AM - 9:00 PM');
+    const [gymImage1, setGymImage1] = useState(localStorage.getItem('gymImage1') || '');
+    const [gymImage2, setGymImage2] = useState(localStorage.getItem('gymImage2') || '');
+    const [gymImage3, setGymImage3] = useState(localStorage.getItem('gymImage3') || '');
 
     useEffect(() => {
         const handleUpdate = () => {
@@ -25,6 +28,9 @@ const LandingPage = () => {
             setGymMobile(localStorage.getItem('gymMobile') || '(555) 123-4567');
             setGymHoursMonFri(localStorage.getItem('gymHoursMonFri') || '5:00 AM - 11:00 PM');
             setGymHoursSatSun(localStorage.getItem('gymHoursSatSun') || '7:00 AM - 9:00 PM');
+            setGymImage1(localStorage.getItem('gymImage1') || '');
+            setGymImage2(localStorage.getItem('gymImage2') || '');
+            setGymImage3(localStorage.getItem('gymImage3') || '');
         };
         window.addEventListener('gymSettingsUpdated', handleUpdate);
         return () => window.removeEventListener('gymSettingsUpdated', handleUpdate);
@@ -84,9 +90,17 @@ const LandingPage = () => {
                         <p className="featureCardText">Personalized guidance to help you smash your goals.</p>
                     </div>
                 </div>
-            </div>
-
-
+            </div>            {/* Gallery Section */}
+            {(gymImage1 || gymImage2 || gymImage3) && (
+                <div style={{ padding: '60px 20px', textAlign: 'center' }}>
+                    <h1 className="featuresTitle">OUR GYM</h1>
+                    <div style={{ display: 'flex', gap: '20px', justifyContent: 'center', flexWrap: 'wrap', maxWidth: '1200px', margin: '0 auto', marginTop: '40px' }}>
+                        {gymImage1 && <img src={gymImage1} alt="Gym 1" style={{ width: '350px', height: '250px', objectFit: 'cover', borderRadius: '10px', boxShadow: '0 4px 10px rgba(0,0,0,0.3)' }} />}
+                        {gymImage2 && <img src={gymImage2} alt="Gym 2" style={{ width: '350px', height: '250px', objectFit: 'cover', borderRadius: '10px', boxShadow: '0 4px 10px rgba(0,0,0,0.3)' }} />}
+                        {gymImage3 && <img src={gymImage3} alt="Gym 3" style={{ width: '350px', height: '250px', objectFit: 'cover', borderRadius: '10px', boxShadow: '0 4px 10px rgba(0,0,0,0.3)' }} />}
+                    </div>
+                </div>
+            )}
 
             {/* Membership Plans Section */}
             <div className="plansSection">

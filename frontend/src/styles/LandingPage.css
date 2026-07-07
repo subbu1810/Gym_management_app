@@ -128,17 +128,18 @@
 
 /* Theme Toggle Button */
 .theme-toggle {
-    position: absolute;
-    top: 20px;
+    position: fixed;
+    bottom: 20px;
     right: 20px;
     z-index: 100;
-    padding: 10px 15px;
+    padding: 6px 12px;
     background-color: #333;
     color: #fff;
     border: none;
     border-radius: 20px;
     cursor: pointer;
     font-weight: bold;
+    font-size: 0.85rem;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
     transition: background-color 0.3s;
 }

@@ -1,5 +1,8 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { FiTag, FiUser, FiPhone, FiClock, FiCalendar, FiPrinter, FiHome } from 'react-icons/fi';
+import { FaCheckCircle, FaCheck, FaDumbbell } from 'react-icons/fa';
+import '../styles/BookingSuccess.css';
 
 const BookingSuccess = () => {
   const navigate = useNavigate();
@@ -10,36 +13,85 @@ const BookingSuccess = () => {
     window.print();
   };
 
+  const storedGymName = localStorage.getItem('gymName') || 'FITFLEX GYMS';
+  const nameParts = storedGymName.split(' ');
+  const firstWord = nameParts[0];
+  const restOfName = nameParts.slice(1).join(' ');
+
   return (
-    <div className="container" style={{ maxWidth: '600px', padding: '20px', margin: '40px auto', background: 'var(--surface-color)', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}>
-      <div style={{ textAlign: 'center', marginBottom: '30px' }}>
-        <h1 style={{ color: 'red', marginBottom: '10px' }}>Payment Successful!</h1>
-        <p style={{ fontSize: '1.1rem' }}>Thank you for your payment. Your booking has been confirmed!</p>
-        {booking && (
-          <p style={{ marginTop: '10px', color: 'var(--text-secondary)' }}>
-            We have sent a confirmation email to <strong>{booking.email}</strong>.
-          </p>
-        )}
-      </div>
-
-      {booking && (
-        <div className="receipt" style={{ background: 'var(--bg-color)', padding: '20px', borderRadius: '8px', border: '1px solid var(--border-color)', marginBottom: '30px', textAlign: 'left' }}>
-          <h3 style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '10px', marginBottom: '15px', marginTop: 0 }}>Booking Receipt</h3>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', color: 'var(--text-primary)' }}>
-            <p><strong>Booking ID:</strong> #{booking.id}</p>
-            <p><strong>Status:</strong> <span style={{ color: 'var(--success-color, #10b981)', fontWeight: 'bold' }}>{booking.status}</span></p>
-            <p><strong>Name:</strong> {booking.full_name}</p>
-            <p><strong>Phone:</strong> {booking.phone}</p>
-            <p><strong>Plan Type:</strong> {booking.plan_type}</p>
-            <p><strong>Gym Slot:</strong> {booking.gym_slot}</p>
-            <p><strong>Date:</strong> {booking.booking_date}</p>
+    <div className="success-page-wrapper">
+      <div className="success-card">
+        <div className="success-content">
+          <div className="brand-logo" style={{ color: 'red' }}>
+            {firstWord}<span>{restOfName}</span>
           </div>
-        </div>
-      )}
 
-      <div style={{ display: 'flex', gap: '15px', justifyContent: 'center' }}>
-        <button onClick={handlePrint} className="btn" style={{ background: 'var(--text-secondary)' }}>Print Receipt</button>
-        <button onClick={() => navigate('/')} className="btn">Return Home</button>
+          <div className="success-header-row">
+            <h1 className="success-title">Payment Successful!</h1>
+            <div className="success-icon-badge">
+              <FaCheck />
+            </div>
+          </div>
+
+          <p className="success-subtitle">Thank you for your payment. Your booking has been confirmed!</p>
+
+          {booking && (
+            <p className="success-email-text">
+              We have sent a confirmation email to <strong>{booking.email}</strong>.
+            </p>
+          )}
+
+          {booking && (
+            <div className="receipt-card">
+              <div className="receipt-header">BOOKING RECEIPT</div>
+              <div className="receipt-body">
+                <div className="receipt-item">
+                  <FiTag className="receipt-icon" />
+                  <span><strong>Booking ID:</strong> #{booking.id}</span>
+                </div>
+                <div className="receipt-item">
+                  <span className="status-pill">
+                    Status <FaCheckCircle /> {booking.status}
+                  </span>
+                </div>
+                <div className="receipt-item">
+                  <FiUser className="receipt-icon" />
+                  <span><strong>Name:</strong> {booking.full_name}</span>
+                </div>
+                <div className="receipt-item">
+                  <FaDumbbell className="receipt-icon" />
+                  <span><strong>Plan Type:</strong> {booking.plan_type}</span>
+                </div>
+                <div className="receipt-item">
+                  <FiPhone className="receipt-icon" />
+                  <span><strong>Phone:</strong> {booking.phone}</span>
+                </div>
+                <div className="receipt-item">
+                  <FiClock className="receipt-icon" />
+                  <span><strong>Gym Slot:</strong> {booking.gym_slot}</span>
+                </div>
+                <div className="receipt-item">
+                  <FiCalendar className="receipt-icon" />
+                  <span><strong>Date:</strong> {booking.booking_date}</span>
+                </div>
+              </div>
+              <div className="receipt-footer-text">
+                Review your workout plan details to give the access your spans to your workout plan send.
+              </div>
+            </div>
+          )}
+
+          <div className="action-buttons">
+            <button onClick={handlePrint} className="btn-print">
+              <FiPrinter /> Print Receipt
+            </button>
+            <button onClick={() => navigate('/')} className="btn-home">
+              <FiHome /> Return Home
+            </button>
+          </div>
+
+          <p className="footer-note">Please Download your Receipt. Thank you for choosing {storedGymName}!</p>
+        </div>
       </div>
     </div>
   );

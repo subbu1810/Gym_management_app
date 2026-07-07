@@ -347,13 +347,18 @@
 }
 
 .theme-toggle-btn {
-  padding: 8px 16px;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+  padding: 6px 12px;
   border-radius: 20px;
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 8px;
   font-weight: bold;
+  font-size: 0.85rem;
   transition: all 0.3s ease;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }

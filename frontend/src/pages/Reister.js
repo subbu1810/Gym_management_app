@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import bookingService from '../services/bookingService';
+import { bookingsAPI } from '../services/api';
 import '../styles/BookingForm.css';
 
 const Register = () => {
@@ -31,13 +31,26 @@ const Register = () => {
     medicalDetails: '',
     preferredBatch: 'Morning',
     plan_type: 'Monthly', // Maps to Membership Plan
-    amount: '1500',
+    amount: localStorage.getItem('feeMonthly') || '1500',
     startDate: '',
     profilePhoto: '',
     idProofPhoto: '',
     declaration: ''
   });
   const [errors, setErrors] = useState({});
+  const [existingBookings, setExistingBookings] = useState([]);
+
+  useEffect(() => {
+    const fetchBookings = async () => {
+      try {
+        const data = await bookingsAPI.getAll();
+        setExistingBookings(data || []);
+      } catch (err) {
+        console.error("Failed to fetch bookings for validation", err);
+      }
+    };
+    fetchBookings();
+  }, []);
 
   const handleChange = (e) => {
     let { name, value } = e.target;
@@ -55,6 +68,21 @@ const Register = () => {
       value = value.replace(/(\d{4})(?=\d)/g, '$1 ');
     }
 
+    if (name === 'idProofNumber' && formData.idProofType === 'PAN Card') {
+      value = value.toUpperCase().replace(/[^A-Z0-9]/g, ''); // Allow A-Z and 0-9
+      let formatted = '';
+      for (let i = 0; i < value.length; i++) {
+        if (i < 5) {
+          if (/[A-Z]/.test(value[i])) formatted += value[i];
+        } else if (i < 9) {
+          if (/[0-9]/.test(value[i])) formatted += value[i];
+        } else if (i === 9) {
+          if (/[A-Z]/.test(value[i])) formatted += value[i];
+        }
+      }
+      value = formatted;
+    }
+
     if (name === 'phone' || name === 'whatsappNumber' || name === 'emergencyContactNumber') {
       value = value.replace(/\D/g, ''); // Allow only digits
       if (value.length > 0 && !/^[6-9]/.test(value)) {
@@ -68,8 +96,7 @@ const Register = () => {
         emergencyContactNumber: name === 'emergencyContactNumber' ? value : formData.emergencyContactNumber
       };
 
-      const bookingsData = localStorage.getItem('gym_bookings');
-      const bookings = bookingsData ? JSON.parse(bookingsData) : [];
+      const bookings = existingBookings;
 
       ['phone', 'whatsappNumber', 'emergencyContactNumber'].forEach(field => {
         const fieldVal = currentValues[field];
@@ -104,8 +131,7 @@ const Register = () => {
       value = value.toLowerCase().replace(/[^a-z0-9@.]/g, '');
       let newErrors = { ...errors };
 
-      const bookingsData = localStorage.getItem('gym_bookings');
-      const bookings = bookingsData ? JSON.parse(bookingsData) : [];
+      const bookings = existingBookings;
       const isDuplicateDB = bookings.some(b => b.email === value);
 
       if (value.length > 0 && !/^[a-z0-9]+@[a-z0-9]+\.[a-z]{2,}$/.test(value)) {
@@ -136,10 +162,10 @@ const Register = () => {
     }
 
     if (name === 'plan_type') {
-      let newAmount = '1500';
-      if (value === '3 Months') newAmount = '4500';
-      else if (value === '6 Months') newAmount = '9000';
-      else if (value === 'Yearly') newAmount = '18000';
+      let newAmount = localStorage.getItem('feeMonthly') || '1500';
+      if (value === '3 Months') newAmount = localStorage.getItem('fee3Months') || '4500';
+      else if (value === '6 Months') newAmount = localStorage.getItem('fee6Months') || '9000';
+      else if (value === 'Yearly') newAmount = localStorage.getItem('feeYearly') || '18000';
 
       setFormData({ ...formData, [name]: value, amount: newAmount });
       return;
@@ -161,8 +187,7 @@ const Register = () => {
 
   const validate = () => {
     let tempErrors = {};
-    const bookingsData = localStorage.getItem('gym_bookings');
-    const bookings = bookingsData ? JSON.parse(bookingsData) : [];
+    const bookings = existingBookings;
 
     if (!formData.firstName) tempErrors.firstName = "First name is required";
     if (!formData.lastName) tempErrors.lastName = "Last name is required";
@@ -218,6 +243,12 @@ const Register = () => {
       tempErrors.pincode = "Pincode must be exactly 6 digits";
     }
 
+    if (!formData.idProofNumber) {
+      tempErrors.idProofNumber = "ID proof number is required";
+    } else if (formData.idProofType === 'PAN Card' && formData.idProofNumber.length !== 10) {
+      tempErrors.idProofNumber = "PAN Card must be exactly 10 characters";
+    }
+
     if (!formData.startDate) tempErrors.startDate = "Start date is required";
     if (!formData.amount) tempErrors.amount = "Fee amount is required";
     if (formData.declaration !== 'True') tempErrors.declaration = "You must agree to the declaration";
@@ -240,7 +271,7 @@ const Register = () => {
           joining_date: formData.startDate,
           booking_date: formData.startDate
         };
-        const response = await bookingService.createBooking(submissionData);
+        const response = await bookingsAPI.create(submissionData);
         navigate(`/terms?bookingId=${response.bookingId}`);
       } catch (error) {
         toast.error('Error creating booking. Please try again.');
