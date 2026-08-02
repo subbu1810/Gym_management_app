@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { bookingsAPI } from '../services/api';
+import { membersAPI } from '../services/api';
 import '../styles/BookingForm.css';
 
 const Register = () => {
@@ -41,15 +41,15 @@ const Register = () => {
   const [existingBookings, setExistingBookings] = useState([]);
 
   useEffect(() => {
-    const fetchBookings = async () => {
+    const fetchMembers = async () => {
       try {
-        const data = await bookingsAPI.getAll();
+        const data = await membersAPI.getAll();
         setExistingBookings(data || []);
       } catch (err) {
-        console.error("Failed to fetch bookings for validation", err);
+        console.error("Failed to fetch members for validation", err);
       }
     };
-    fetchBookings();
+    fetchMembers();
   }, []);
 
   const handleChange = (e) => {
@@ -271,10 +271,10 @@ const Register = () => {
           joining_date: formData.startDate,
           booking_date: formData.startDate
         };
-        const response = await bookingsAPI.create(submissionData);
-        navigate(`/terms?bookingId=${response.bookingId}`);
+        const response = await membersAPI.create(submissionData);
+        navigate(`/terms?memberId=${response.memberId || response.id}`);
       } catch (error) {
-        toast.error('Error creating booking. Please try again.');
+        toast.error('Error creating member. Please try again.');
         console.error(error);
       }
     } else {

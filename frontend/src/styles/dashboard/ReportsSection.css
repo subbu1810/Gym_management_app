@@ -1,0 +1,5 @@
+/* ── REPORTS SPECIFIC ── */
+.reports-layout {
+    display: flex;
+    gap: 24px;
+}

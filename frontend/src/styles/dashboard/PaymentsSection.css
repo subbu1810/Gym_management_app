@@ -1,0 +1,5 @@
+/* ── PAYMENTS SPECIFIC ── */
+.payments-layout {
+    display: flex;
+    gap: 24px;
+}

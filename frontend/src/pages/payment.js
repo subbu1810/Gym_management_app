@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { bookingsAPI } from '../services/api';
+import { membersAPI } from '../services/api';
 import '../styles/global.css';
 import '../styles/BookingForm.css';
 
 const Payment = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const bookingId = searchParams.get('bookingId');
+  const memberId = searchParams.get('memberId');
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     cardNumber: '',
@@ -23,8 +23,8 @@ const Payment = () => {
 
   const handlePayment = async (e) => {
     e.preventDefault();
-    if (!bookingId) {
-      toast.error("Invalid booking flow. Please start over.");
+    if (!memberId) {
+      toast.error("Invalid registration flow. Please start over.");
       return navigate('/');
     }
 
@@ -32,12 +32,12 @@ const Payment = () => {
     // Simulate payment processing delay
     setTimeout(async () => {
       try {
-        // Update booking status to Confirmed
-        const response = await bookingsAPI.update(bookingId, { status: 'Confirmed' });
-        navigate('/success', { state: { booking: response.booking } });
+        // Update member status to Active/Confirmed
+        const response = await membersAPI.update(memberId, { status: 'Active' });
+        navigate('/success', { state: { member: response.member || response.data } });
       } catch (error) {
         console.error("Payment finalization failed:", error);
-        toast.error("Payment succeeded, but booking finalization failed. Please contact support.");
+        toast.error("Payment succeeded, but registration finalization failed. Please contact support.");
       } finally {
         setLoading(false);
       }

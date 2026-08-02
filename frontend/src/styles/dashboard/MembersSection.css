@@ -1,0 +1,5 @@
+/* ── MEMBERS SPECIFIC ── */
+.members-layout {
+    display: flex;
+    gap: 24px;
+}

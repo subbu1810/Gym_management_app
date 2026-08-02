@@ -7,7 +7,7 @@ import '../styles/BookingSuccess.css';
 const BookingSuccess = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const booking = location.state?.booking;
+  const member = location.state?.member || location.state?.booking;
 
   const handlePrint = () => {
     window.print();
@@ -33,46 +33,46 @@ const BookingSuccess = () => {
             </div>
           </div>
 
-          <p className="success-subtitle">Thank you for your payment. Your booking has been confirmed!</p>
+          <p className="success-subtitle">Thank you for your payment. Your registration has been confirmed!</p>
 
-          {booking && (
+          {member && (
             <p className="success-email-text">
-              We have sent a confirmation email to <strong>{booking.email}</strong>.
+              We have sent a confirmation email to <strong>{member.email}</strong>.
             </p>
           )}
 
-          {booking && (
+          {member && (
             <div className="receipt-card">
-              <div className="receipt-header">BOOKING RECEIPT</div>
+              <div className="receipt-header">REGISTRATION RECEIPT</div>
               <div className="receipt-body">
                 <div className="receipt-item">
                   <FiTag className="receipt-icon" />
-                  <span><strong>Booking ID:</strong> #{booking.id}</span>
+                  <span><strong>Member ID:</strong> #{member.id}</span>
                 </div>
                 <div className="receipt-item">
                   <span className="status-pill">
-                    Status <FaCheckCircle /> {booking.status}
+                    Status <FaCheckCircle /> {member.status}
                   </span>
                 </div>
                 <div className="receipt-item">
                   <FiUser className="receipt-icon" />
-                  <span><strong>Name:</strong> {booking.full_name}</span>
+                  <span><strong>Name:</strong> {member.full_name}</span>
                 </div>
                 <div className="receipt-item">
                   <FaDumbbell className="receipt-icon" />
-                  <span><strong>Plan Type:</strong> {booking.plan_type}</span>
+                  <span><strong>Plan Type:</strong> {member.plan_type}</span>
                 </div>
                 <div className="receipt-item">
                   <FiPhone className="receipt-icon" />
-                  <span><strong>Phone:</strong> {booking.phone}</span>
+                  <span><strong>Phone:</strong> {member.phone}</span>
                 </div>
                 <div className="receipt-item">
                   <FiClock className="receipt-icon" />
-                  <span><strong>Gym Slot:</strong> {booking.gym_slot}</span>
+                  <span><strong>Gym Slot:</strong> {member.gym_slot}</span>
                 </div>
                 <div className="receipt-item">
                   <FiCalendar className="receipt-icon" />
-                  <span><strong>Date:</strong> {booking.booking_date}</span>
+                  <span><strong>Date:</strong> {member.join_date || member.created_at?.substring(0,10)}</span>
                 </div>
               </div>
               <div className="receipt-footer-text">

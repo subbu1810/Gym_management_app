@@ -1,0 +1,5 @@
+/* ── BOOKINGS SPECIFIC ── */
+.bookings-layout {
+    display: flex;
+    gap: 24px;
+}

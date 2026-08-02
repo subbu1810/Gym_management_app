@@ -1,0 +1,5 @@
+/* ── ATTENDANCE SPECIFIC ── */
+.attendance-layout {
+    display: flex;
+    gap: 24px;
+}

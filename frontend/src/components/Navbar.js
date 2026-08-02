@@ -42,10 +42,16 @@ const Navbar = () => {
         </Link>
       </div>
       <div>
-        {isAuthenticated && (
+        {isAuthenticated ? (
           <>
             <button onClick={handleLogout} className="btn btn-danger" style={{ padding: '4px 10px', fontSize: '0.8rem' }}>
               Logout
+            </button>
+          </>
+        ) : (
+          <>
+            <button onClick={() => navigate('/admin')} className="btn btn-primary" style={{ padding: '4px 10px', fontSize: '0.8rem' }}>
+              Login
             </button>
           </>
         )}

@@ -3,19 +3,19 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import '../styles/global.css';
 import '../styles/BookingForm.css';
-import { bookingsAPI, paymentsAPI } from '../services/api';
+import { membersAPI, paymentsAPI } from '../services/api';
 
 const Terms = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const bookingId = searchParams.get('bookingId');
+  const memberId = searchParams.get('memberId');
   const [accepted, setAccepted] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleProceed = async () => {
-    if (!accepted || !bookingId) {
-      if (!bookingId) {
-        toast.error("Invalid booking flow. Please start over.");
+    if (!accepted || !memberId) {
+      if (!memberId) {
+        toast.error("Invalid registration flow. Please start over.");
         navigate('/');
       }
       return;
@@ -23,21 +23,21 @@ const Terms = () => {
 
     setLoading(true);
     try {
-      // 1. Fetch booking details to get amount etc.
-      const booking = await bookingsAPI.getById(bookingId);
-      if (!booking) throw new Error("Booking not found");
+      // 1. Fetch member details to get amount etc.
+      const member = await membersAPI.getById(memberId);
+      if (!member) throw new Error("Member not found");
 
       // Calculate amount based on plan
       let amount = parseInt(localStorage.getItem('feeMonthly') || '1500', 10);
-      if (booking.plan_type === '3 Months') amount = parseInt(localStorage.getItem('fee3Months') || '4500', 10);
-      if (booking.plan_type === '6 Months') amount = parseInt(localStorage.getItem('fee6Months') || '9000', 10);
-      if (booking.plan_type === 'Yearly') amount = parseInt(localStorage.getItem('feeYearly') || '18000', 10);
+      if (member.plan_type === '3 Months') amount = parseInt(localStorage.getItem('fee3Months') || '4500', 10);
+      if (member.plan_type === '6 Months') amount = parseInt(localStorage.getItem('fee6Months') || '9000', 10);
+      if (member.plan_type === 'Yearly') amount = parseInt(localStorage.getItem('feeYearly') || '18000', 10);
 
       // 2. Create Order
       const orderData = await paymentsAPI.createOrder({
         amount: amount,
         currency: "INR",
-        bookingId: bookingId,
+        userId: memberId,
       });
 
       if (!orderData.success) {
@@ -52,12 +52,12 @@ const Terms = () => {
 
       // 3. Verify Payment
       const verifyRes = await paymentsAPI.verify({
-        bookingId: orderData.bookingId
+        userId: memberId
       });
 
       if (verifyRes.success) {
         toast.success("Payment completed successfully!");
-        navigate('/success', { state: { booking: booking } });
+        navigate('/success', { state: { member: member } });
       } else {
         toast.error("Payment verification failed!");
       }
